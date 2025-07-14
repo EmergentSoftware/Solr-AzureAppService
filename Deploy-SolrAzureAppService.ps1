@@ -1,5 +1,5 @@
 Param(
-    $solrVersion
+	$solrVersion
 )
 
 $solrName = "solr-$solrVersion"
@@ -11,13 +11,16 @@ $global:progressPreference = 'SilentlyContinue'
 
 $siteRoot = "D:\home\site\wwwroot"
 
-Write-Output "Downloading Solr $solrVersion zip to D:\home\site"
+Write-Output "Downloading Solr $solrVersion tar to D:\home\site"
 
-$downloadSource = "https://archive.apache.org/dist/lucene/solr/$solrVersion/$solrName.zip"
-Invoke-WebRequest -Uri $downloadSource -UseBasicParsing -OutFile "..\solr.zip"
+# $downloadSource = "https://archive.apache.org/dist/lucene/solr/$solrVersion/$solrName.zip"
+# utilize new url https://www.apache.org/dyn/closer.lua/solr/solr/9.8.1/solr-9.8.1.tgz?action=download
+$downloadSource = "https://www.apache.org/dyn/closer.lua/solr/$solrVersion/$solrName.tgz?action=download"
+Invoke-WebRequest -Uri $downloadSource -UseBasicParsing -OutFile "..\solr.tgz"
 
 Write-Output "Expanding Solr zip at D:\home\site directory as D:\home\site\$solrName"
-Expand-Archive "..\solr.zip" -DestinationPath "..\"
+# Expand-Archive "..\solr.zip" -DestinationPath "..\"
+tar -xzf "..\solr.tgz" -C "..\"
 
 Write-Output "Copying contents of D:\home\site\$solrName to D:\home\site\wwwroot"
 
@@ -28,11 +31,11 @@ xcopy web.config ..\wwwroot /Y
 
 Write-Output 'Copy default configset as sitecore'
 $usingDefault = $false
-if(Test-Path "..\wwwroot\server\solr\configsets\_default" -PathType Any){
+if (Test-Path "..\wwwroot\server\solr\configsets\_default" -PathType Any) {
 	$usingDefault = $true
 	xcopy "..\wwwroot\server\solr\configsets\_default\*.*" "..\wwwroot\server\solr\configsets\sitecore\*" /s/h/e/k/f/c/Y
 }
-else{
+else {
 	xcopy "..\wwwroot\server\solr\configsets\basic_configs\*.*" "..\wwwroot\server\solr\configsets\sitecore\*" /s/h/e/k/f/c/Y
 }
 
@@ -43,7 +46,7 @@ $xml = New-Object XML
 $path = "..\wwwroot\server\solr\configsets\sitecore\conf\managed-schema"
 $xml.Load($path)
 
-$uniqueKey =  $xml.SelectSingleNode("//uniqueKey")
+$uniqueKey = $xml.SelectSingleNode("//uniqueKey")
 $uniqueKey.InnerText = "_uniqueid"
 
 $field = $xml.CreateElement("field")
@@ -59,19 +62,19 @@ $xml.Save($path)
 
 $sitecoreCores = @(
 	"sitecore_analytics_index", 
-    "sitecore_core_index", 
-    "sitecore_fxm_master_index", 
+	"sitecore_core_index", 
+	"sitecore_fxm_master_index", 
 	"sitecore_fxm_web_index", 
 	"sitecore_list_index", 
-    "sitecore_marketing_asset_index_master", 
-    "sitecore_marketing_asset_index_web", 
+	"sitecore_marketing_asset_index_master", 
+	"sitecore_marketing_asset_index_web", 
 	"sitecore_marketingdefinitions_master", 
 	"sitecore_marketingdefinitions_web", 
-    "sitecore_master_index", 
+	"sitecore_master_index", 
 	"sitecore_suggested_test_index", 
 	"sitecore_testing_index", 
 	"sitecore_web_index", 
-    "social_messages_master", 
+	"social_messages_master", 
 	"social_messages_web"
 )
 
@@ -86,7 +89,7 @@ foreach ($coreName in $sitecoreCores) {
 
 $xdbCores = @(
 	"xdb", 
-    "xdb_rebuild"
+	"xdb_rebuild"
 )
 
 foreach ($coreName in $xdbCores) {
@@ -94,10 +97,10 @@ foreach ($coreName in $xdbCores) {
 	New-Item "..\wwwroot\server\solr\" -Name "$coreName" -ItemType "directory"
 	New-Item "..\wwwroot\server\solr\$coreName" -Name "data" -ItemType "directory"
 
-	if($usingDefault){
+	if ($usingDefault) {
 		xcopy "..\wwwroot\server\solr\configsets\_default\conf\*" "..\wwwroot\server\solr\$coreName\conf\*" /S /Y
 	}
-	else{
+	else {
 		xcopy "..\wwwroot\server\solr\configsets\basic_configs\conf\*" "..\wwwroot\server\solr\$coreName\conf\*" /S /Y
 	}
 
