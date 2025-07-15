@@ -15,7 +15,7 @@ Write-Output "Downloading Solr $solrVersion tar to D:\home\site"
 
 # $downloadSource = "https://archive.apache.org/dist/lucene/solr/$solrVersion/$solrName.zip"
 # utilize new url https://www.apache.org/dyn/closer.lua/solr/solr/9.8.1/solr-9.8.1.tgz?action=download
-$downloadSource = "https://www.apache.org/dyn/closer.lua/solr/$solrVersion/$solrName.tgz?action=download"
+$downloadSource = "https://www.apache.org/dyn/closer.lua/solr/solr/$solrVersion/$solrName.tgz?action=download"
 Invoke-WebRequest -Uri $downloadSource -UseBasicParsing -OutFile "..\solr.tgz"
 
 Write-Output "Expanding Solr zip at D:\home\site directory as D:\home\site\$solrName"
