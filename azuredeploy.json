@@ -46,6 +46,11 @@
     "httpsOnly": {
       "type": "bool",
       "defaultValue": true
+    },
+    "javaVersion": {
+      "type": "string",
+      "defaultValue": "17",
+      "allowedValues": ["8", "11", "17"]
     }
   },
   "resources": [
@@ -93,7 +98,7 @@
           ],
           "properties": {
             "alwaysOn": true,
-            "javaVersion": "1.8",
+            "javaVersion": "[parameters('javaVersion')]",
             "javaContainer": "TOMCAT",
             "javaContainerVersion": "9.0"
           }
